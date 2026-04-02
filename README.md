@@ -104,7 +104,7 @@ Services exposés :
 
 - `frontend` : `http://localhost:5173`
 - `backend` : `http://localhost:4000`
-- `db` : `localhost:3306`
+- `db` : `localhost:3307`
 
 ## Sécurité
 
@@ -141,4 +141,3 @@ Le projet est préparé pour :
 - enrichir ultérieurement la synchronisation utilisateur via Graph.
 
 Les arbitrages détaillés du MVP sont documentés dans `README_DEV.md`.
-
