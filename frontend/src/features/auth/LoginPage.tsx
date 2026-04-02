@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Card } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
+import { UfcvLogo } from "../../components/ui/UfcvLogo";
 import { ApiError } from "../../lib/api";
 import { useAuth } from "./useAuth";
 
@@ -21,11 +22,7 @@ export function LoginPage() {
     <div className="grid min-h-screen place-items-center px-4 py-10">
       <div className="grid w-full max-w-5xl gap-6 lg:grid-cols-[1.1fr,0.9fr]">
         <div className="rounded-[2rem] border border-border bg-black p-10 text-white shadow-soft">
-          <img
-            src="/brand/ufcv-logo.png"
-            alt="Logo UFCV"
-            className="h-16 w-16 rounded-2xl bg-black object-contain p-1"
-          />
+          <UfcvLogo className="h-16 w-16 rounded-2xl p-2" imageClassName="scale-[0.96]" />
           <p className="mt-8 text-sm uppercase tracking-[0.24em] text-white/70">UFCV</p>
           <h1 className="mt-3 text-4xl font-semibold leading-tight">Réservez et pilotez la flotte sans Excel.</h1>
           <p className="mt-4 max-w-xl text-base text-white/75">

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "../../lib/cn";
+import { UfcvLogo } from "../ui/UfcvLogo";
 
 const navigation = [
   { to: "/", label: "Tableau de bord", icon: Home },
@@ -35,11 +36,7 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
     <aside className={cn("flex h-full flex-col gap-6", mobile ? "p-4" : "p-6")}>
       <div className="rounded-2xl border border-border bg-surface p-4 shadow-soft">
         <div className="flex items-center gap-3">
-          <img
-            src="/brand/ufcv-logo.png"
-            alt="Logo UFCV"
-            className="h-12 w-12 rounded-xl bg-black object-contain p-1"
-          />
+          <UfcvLogo className="h-12 w-12" imageClassName="scale-[0.96]" />
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-soft">UFCV</p>
             <p className="text-lg font-semibold text-app">RSVéhicule</p>
