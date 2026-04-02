@@ -58,7 +58,7 @@ export function ForgotPasswordPage() {
 
           {message ? <p className="text-sm text-emerald-700 dark:text-emerald-300">{message}</p> : null}
           {devToken ? (
-            <div className="rounded-xl border border-border bg-surface-strong p-3 text-sm">
+            <div className="glass-panel-strong rounded-xl border border-border p-3 text-sm">
               <p className="font-medium">Jeton de développement</p>
               <code className="mt-2 block break-all font-mono text-xs">{devToken}</code>
             </div>

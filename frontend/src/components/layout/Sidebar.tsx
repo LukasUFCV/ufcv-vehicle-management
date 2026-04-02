@@ -50,7 +50,7 @@ export function Sidebar({ mobile = false, onNavigate, onAction }: SidebarProps) 
         mobile ? "overflow-y-auto p-4" : "overflow-y-auto p-6"
       )}
     >
-      <div className="rounded-2xl border border-border bg-surface p-4 shadow-soft">
+      <div className="glass-panel-strong rounded-2xl border border-border p-4">
         <div className="flex items-center gap-3">
           <UfcvLogo className="h-12 w-12" imageClassName="scale-[0.96]" />
           <div>
@@ -74,7 +74,7 @@ export function Sidebar({ mobile = false, onNavigate, onAction }: SidebarProps) 
                   "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
                   isActive
                     ? "bg-brand-500 !text-white shadow-soft hover:bg-brand-600 hover:!text-white dark:bg-brand-700 dark:hover:bg-brand-600"
-                    : "text-soft hover:bg-surface hover:text-app dark:hover:bg-surface-strong"
+                    : "text-soft hover:bg-white/55 hover:text-app dark:hover:bg-white/5"
                 )
               }
             >
@@ -87,13 +87,13 @@ export function Sidebar({ mobile = false, onNavigate, onAction }: SidebarProps) 
 
       {mobile ? (
         <div className="mt-auto space-y-4 border-t border-border pt-4">
-          <div className="rounded-2xl border border-border bg-surface p-4">
+          <div className="glass-panel-strong rounded-2xl border border-border p-4">
             <p className="text-xs uppercase tracking-[0.2em] text-soft">Session</p>
             <p className="mt-2 break-words text-sm font-medium text-app">{user?.fullName}</p>
             <p className="text-xs text-soft">{user?.roles[0]?.name ?? "Utilisateur"}</p>
           </div>
 
-          <div className="space-y-2 rounded-2xl border border-border bg-surface p-4">
+          <div className="glass-panel-strong space-y-2 rounded-2xl border border-border p-4">
             <p className="text-xs uppercase tracking-[0.2em] text-soft">Apparence</p>
             <ThemeToggle
               className="w-full"

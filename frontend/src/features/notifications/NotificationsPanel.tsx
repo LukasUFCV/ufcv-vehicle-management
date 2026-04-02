@@ -39,7 +39,7 @@ export function NotificationsPanel() {
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
-        className="relative rounded-xl border border-border bg-surface p-2 text-soft hover:text-app"
+        className="glass-control relative rounded-xl border border-border p-2 text-soft hover:text-app"
         aria-label="Afficher les notifications"
       >
         <Bell className="h-5 w-5" />
@@ -51,7 +51,7 @@ export function NotificationsPanel() {
       </button>
 
       {open ? (
-        <Card className="absolute right-0 z-30 mt-2 max-h-[75vh] w-[calc(100vw-2rem)] max-w-[22rem] space-y-3 overflow-y-auto">
+        <Card className="glass-floating absolute right-0 z-30 mt-2 max-h-[75vh] w-[calc(100vw-2rem)] max-w-[22rem] space-y-3 overflow-y-auto">
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold">Notifications</p>
             <Button variant="ghost" onClick={() => setOpen(false)}>
@@ -61,7 +61,7 @@ export function NotificationsPanel() {
           <div className="space-y-3">
             {data?.data.length ? (
               data.data.map((notification) => (
-                <div key={notification.id} className="rounded-xl border border-border p-3">
+                <div key={notification.id} className="glass-control rounded-xl border border-border p-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="break-words text-sm font-semibold text-app">{notification.title}</p>

@@ -27,7 +27,7 @@ export function ThemeToggle({
   ] as const;
 
   return (
-    <div className={cn("flex flex-wrap rounded-xl border border-border bg-surface-strong p-1", className)}>
+    <div className={cn("glass-control flex flex-wrap rounded-xl border border-border p-1", className)}>
       {options.map((option) => {
         const Icon = option.icon;
 
@@ -42,7 +42,9 @@ export function ThemeToggle({
             className={cn(
               "flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition",
               stretch && "flex-1 justify-center",
-              preference === option.value ? "bg-brand-500 text-white" : "text-soft hover:text-app",
+              preference === option.value
+                ? "bg-brand-500 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18)]"
+                : "text-soft hover:bg-white/55 hover:text-app dark:hover:bg-white/5",
               buttonClassName
             )}
             aria-label={`Activer le thème ${option.label.toLowerCase()}`}

@@ -74,7 +74,7 @@ export function AppShell() {
 
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[18rem,minmax(0,1fr)]">
-      <div className="hidden border-r border-border bg-surface/70 lg:sticky lg:top-0 lg:block lg:h-screen lg:self-start lg:overflow-hidden">
+      <div className="glass-sidebar-shell hidden border-r border-border lg:sticky lg:top-0 lg:block lg:h-screen lg:self-start lg:overflow-hidden">
         <Sidebar />
       </div>
 
@@ -89,7 +89,7 @@ export function AppShell() {
           />
           <div
             className={cn(
-              "relative h-full w-80 max-w-[88vw] overflow-hidden border-r border-border bg-app shadow-2xl transition-all duration-200 ease-out motion-reduce:transition-none",
+              "glass-floating relative h-full w-80 max-w-[88vw] overflow-hidden border-r border-border shadow-2xl transition-all duration-200 ease-out motion-reduce:transition-none",
               mobileOpen ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
             )}
             onClick={(event) => event.stopPropagation()}

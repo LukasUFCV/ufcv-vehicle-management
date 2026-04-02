@@ -28,17 +28,17 @@ export function DataTable<T>({
               <div key={getRowKey?.(row, index) ?? index}>{mobileCard(row)}</div>
             ))
           ) : (
-            <div className="rounded-2xl border border-border bg-surface p-4 text-sm text-soft">
+            <div className="glass-panel-strong rounded-2xl border border-border p-4 text-sm text-soft">
               Aucune donnée à afficher.
             </div>
           )}
         </div>
       ) : null}
 
-      <div className={cn("overflow-hidden rounded-2xl border border-border", mobileCard && "hidden md:block")}>
+      <div className={cn("glass-panel overflow-hidden rounded-2xl border border-border", mobileCard && "hidden md:block")}>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-border">
-            <thead className="bg-surface-strong">
+            <thead className="bg-surface-frost-strong">
               <tr>
                 {columns.map((column) => (
                   <th
@@ -50,7 +50,7 @@ export function DataTable<T>({
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-border bg-surface">
+            <tbody className="divide-y divide-border bg-surface-frost">
               {rows.map((row, index) => (
                 <tr key={getRowKey?.(row, index) ?? index} className="align-top">
                   {columns.map((column) => (

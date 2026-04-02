@@ -10,7 +10,7 @@ export function StatCard({
   hint: string;
 }) {
   return (
-    <Card className="bg-surface/95">
+    <Card className="glass-panel-strong">
       <p className="text-sm text-soft">{title}</p>
       <p className="mt-3 text-3xl font-semibold tracking-tight text-app">{value}</p>
       <p className="mt-2 text-xs text-soft">{hint}</p>

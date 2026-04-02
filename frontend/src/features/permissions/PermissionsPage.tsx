@@ -94,7 +94,7 @@ export function PermissionsPage() {
           return (
             <div
               key={permission.id}
-              className="grid gap-3 rounded-xl border border-border bg-surface-strong p-3 md:grid-cols-[1fr,220px]"
+              className="glass-panel-strong grid gap-3 rounded-xl border border-border p-3 md:grid-cols-[1fr,220px]"
             >
               <div>
                 <p className="font-medium text-app">

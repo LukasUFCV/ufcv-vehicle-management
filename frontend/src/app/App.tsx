@@ -41,7 +41,7 @@ function ProtectedLayout() {
 function PrivacyPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <div className="rounded-2xl border border-border bg-surface p-8 shadow-soft">
+      <div className="glass-panel rounded-2xl border border-border p-8">
         <h1 className="text-3xl font-semibold text-app">Politique de confidentialité</h1>
         <p className="mt-4 text-sm text-soft">
           RSVéhicule traite uniquement les données nécessaires à la gestion de la flotte UFCV :

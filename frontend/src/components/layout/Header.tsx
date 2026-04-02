@@ -28,13 +28,13 @@ export function Header({ onOpenMobileMenu }: { onOpenMobileMenu: () => void }) {
   const title = useMemo(() => titleMap[location.pathname] ?? "RSVéhicule", [location.pathname]);
 
   return (
-    <header className="sticky top-0 z-20 border-b border-border bg-[rgba(246,249,252,0.85)] px-4 py-4 backdrop-blur dark:bg-[rgba(12,18,24,0.9)] lg:px-8">
+    <header className="glass-header sticky top-0 z-20 border-b border-border px-4 py-4 lg:px-8">
       <div className="flex items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
           <button
             type="button"
             onClick={onOpenMobileMenu}
-            className="rounded-xl border border-border bg-surface p-2 text-soft lg:hidden"
+            className="glass-control rounded-xl border border-border p-2 text-soft lg:hidden"
             aria-label="Ouvrir le menu"
           >
             <Menu className="h-5 w-5" />
@@ -48,7 +48,7 @@ export function Header({ onOpenMobileMenu }: { onOpenMobileMenu: () => void }) {
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <ThemeToggle className="hidden lg:flex" />
           <NotificationsPanel />
-          <div className="hidden rounded-xl border border-border bg-surface px-3 py-2 md:block">
+          <div className="glass-control hidden rounded-xl border border-border px-3 py-2 md:block">
             <p className="text-sm font-medium text-app">{user?.fullName}</p>
             <p className="text-xs text-soft">{user?.roles[0]?.name ?? "Utilisateur"}</p>
           </div>

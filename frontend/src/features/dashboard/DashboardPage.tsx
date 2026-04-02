@@ -68,7 +68,7 @@ export function DashboardPage() {
           <div className="mt-4 space-y-3">
             {data?.myNextReservations.length ? (
               data.myNextReservations.map((reservation) => (
-                <div key={reservation.id} className="rounded-xl border border-border bg-surface-strong p-4">
+                <div key={reservation.id} className="glass-panel-strong rounded-xl border border-border p-4">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
                       <p className="break-words font-medium text-app">{reservation.destination}</p>
@@ -108,7 +108,7 @@ export function DashboardPage() {
               <Link
                 key={link.to}
                 to={link.to}
-                className="rounded-xl border border-border bg-surface-strong px-4 py-3 text-sm font-medium text-app transition hover:border-brand-300 hover:bg-brand-500/5"
+                className="glass-control rounded-xl border border-border px-4 py-3 text-sm font-medium text-app transition hover:border-brand-300 hover:bg-brand-500/5"
               >
                 {link.label}
               </Link>

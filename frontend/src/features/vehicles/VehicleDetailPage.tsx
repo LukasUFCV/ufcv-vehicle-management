@@ -96,11 +96,11 @@ export function VehicleDetailPage() {
             ) : null}
           </div>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
-            <div className="rounded-xl border border-border bg-surface-strong p-4">
+            <div className="glass-panel-strong rounded-xl border border-border p-4">
               <p className="text-sm text-soft">Emplacement</p>
               <p className="mt-1 font-medium">{vehicle?.currentLocation?.name ?? "Non renseigné"}</p>
             </div>
-            <div className="rounded-xl border border-border bg-surface-strong p-4">
+            <div className="glass-panel-strong rounded-xl border border-border p-4">
               <p className="text-sm text-soft">Disponibilité</p>
               <p className="mt-1 font-medium">{vehicle?.availabilityLabel ?? "Non renseigné"}</p>
             </div>
@@ -193,7 +193,7 @@ export function VehicleDetailPage() {
           </form>
           <div className="mt-4 space-y-2">
             {vehicle?.odometerLogs.map((log) => (
-              <div key={log.id} className="rounded-xl border border-border bg-surface-strong p-3 text-sm">
+              <div key={log.id} className="glass-panel-strong rounded-xl border border-border p-3 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="font-medium">{log.valueKm} km</span>
                   <Badge tone="info">{log.type}</Badge>

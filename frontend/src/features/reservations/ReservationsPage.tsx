@@ -216,7 +216,7 @@ export function ReservationsPage() {
               placeholder="Tapez 3 caractères"
             />
             {analyticsOptions.length ? (
-              <div className="mt-2 rounded-xl border border-border bg-surface-strong p-2">
+              <div className="glass-floating mt-2 rounded-xl border border-border p-2">
                 {analyticsOptions.map((option) => (
                   <button
                     key={option.id}

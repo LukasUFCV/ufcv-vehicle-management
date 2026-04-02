@@ -37,7 +37,7 @@ export function ScanVehiclePage() {
         </div>
         <div className="mt-6 space-y-3">
           {vehicle?.odometerLogs.slice(0, 5).map((log) => (
-            <div key={log.id} className="rounded-xl border border-border bg-surface-strong p-3">
+            <div key={log.id} className="glass-panel-strong rounded-xl border border-border p-3">
               <p className="font-medium">{log.valueKm} km</p>
               <p className="text-sm text-soft">{formatDateTime(log.occurredAt)}</p>
             </div>
