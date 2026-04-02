@@ -104,7 +104,7 @@ Services exposés :
 
 - `frontend` : `http://localhost:5173`
 - `backend` : `http://localhost:4000`
-- `db` : `localhost:3307`
+- `db` : `localhost:3306`
 
 ## Sécurité
 
