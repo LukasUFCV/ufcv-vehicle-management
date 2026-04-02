@@ -13,4 +13,5 @@ backend/prisma/dev.db
 backend/storage
 frontend/playwright-report
 frontend/test-results
+*.tsbuildinfo
 
