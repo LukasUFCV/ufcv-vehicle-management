@@ -28,7 +28,7 @@ export function AppShell() {
 
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[18rem,minmax(0,1fr)]">
-      <div className="hidden border-r border-border bg-surface/70 lg:block">
+      <div className="hidden border-r border-border bg-surface/70 lg:sticky lg:top-0 lg:block lg:h-screen lg:self-start lg:overflow-hidden">
         <Sidebar />
       </div>
 

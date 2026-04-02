@@ -47,7 +47,7 @@ export function Sidebar({ mobile = false, onNavigate, onAction }: SidebarProps) 
     <aside
       className={cn(
         "flex h-full min-h-0 flex-col gap-6",
-        mobile ? "overflow-y-auto p-4" : "p-6"
+        mobile ? "overflow-y-auto p-4" : "overflow-y-auto p-6"
       )}
     >
       <div className="rounded-2xl border border-border bg-surface p-4 shadow-soft">
@@ -71,15 +71,15 @@ export function Sidebar({ mobile = false, onNavigate, onAction }: SidebarProps) 
               onClick={mobile ? onNavigate : undefined}
               className={({ isActive }) =>
                 cn(
-                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
+                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
                   isActive
-                    ? "bg-brand-500 text-white shadow-soft"
-                    : "text-soft hover:bg-surface hover:text-app"
+                    ? "bg-brand-500 !text-white shadow-soft hover:bg-brand-600 hover:!text-white dark:bg-brand-700 dark:hover:bg-brand-600"
+                    : "text-soft hover:bg-surface hover:text-app dark:hover:bg-surface-strong"
                 )
               }
             >
-              <Icon className="h-4 w-4" />
-              <span className="min-w-0 break-words">{item.label}</span>
+              <Icon className="h-4 w-4 shrink-0 text-current" />
+              <span className="min-w-0 break-words text-current">{item.label}</span>
             </NavLink>
           );
         })}
