@@ -1,5 +1,4 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AppShell } from "../components/layout/AppShell";
 import { CommentsPage } from "../features/comments/CommentsPage";
@@ -88,7 +87,6 @@ export function App() {
               </Route>
             </Routes>
           </BrowserRouter>
-          <ReactQueryDevtools initialIsOpen={false} />
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
