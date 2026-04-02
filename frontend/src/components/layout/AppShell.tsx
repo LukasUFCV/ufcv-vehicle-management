@@ -1,20 +1,59 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
+import { cn } from "../../lib/cn";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 
+const MOBILE_MENU_TRANSITION_MS = 220;
+
 export function AppShell() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileMenuMounted, setMobileMenuMounted] = useState(false);
   const location = useLocation();
+  const closeTimeoutRef = useRef<number | undefined>(undefined);
+  const openFrameRef = useRef<number | undefined>(undefined);
 
-  const closeMobileMenu = () => setMobileOpen(false);
+  const clearMobileMenuTimers = () => {
+    if (closeTimeoutRef.current !== undefined) {
+      window.clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = undefined;
+    }
+
+    if (openFrameRef.current !== undefined) {
+      window.cancelAnimationFrame(openFrameRef.current);
+      openFrameRef.current = undefined;
+    }
+  };
+
+  const openMobileMenu = () => {
+    clearMobileMenuTimers();
+    setMobileMenuMounted(true);
+    openFrameRef.current = window.requestAnimationFrame(() => {
+      setMobileOpen(true);
+      openFrameRef.current = undefined;
+    });
+  };
+
+  const closeMobileMenu = () => {
+    clearMobileMenuTimers();
+    setMobileOpen(false);
+
+    if (!mobileMenuMounted) {
+      return;
+    }
+
+    closeTimeoutRef.current = window.setTimeout(() => {
+      setMobileMenuMounted(false);
+      closeTimeoutRef.current = undefined;
+    }, MOBILE_MENU_TRANSITION_MS);
+  };
 
   useEffect(() => {
-    setMobileOpen(false);
+    closeMobileMenu();
   }, [location.pathname]);
 
   useEffect(() => {
-    if (!mobileOpen) {
+    if (!mobileMenuMounted) {
       return;
     }
 
@@ -24,7 +63,14 @@ export function AppShell() {
     return () => {
       document.body.style.overflow = previousOverflow;
     };
-  }, [mobileOpen]);
+  }, [mobileMenuMounted]);
+
+  useEffect(
+    () => () => {
+      clearMobileMenuTimers();
+    },
+    []
+  );
 
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[18rem,minmax(0,1fr)]">
@@ -32,10 +78,20 @@ export function AppShell() {
         <Sidebar />
       </div>
 
-      {mobileOpen ? (
-        <div className="fixed inset-0 z-40 bg-black/35 backdrop-blur-[1px] lg:hidden" onClick={closeMobileMenu}>
+      {mobileMenuMounted ? (
+        <div className="fixed inset-0 z-40 lg:hidden">
           <div
-            className="h-full w-80 max-w-[88vw] overflow-hidden border-r border-border bg-app shadow-2xl"
+            className={cn(
+              "absolute inset-0 bg-black/35 transition-opacity duration-200 ease-out motion-reduce:transition-none",
+              mobileOpen ? "opacity-100 backdrop-blur-[1px]" : "opacity-0"
+            )}
+            onClick={closeMobileMenu}
+          />
+          <div
+            className={cn(
+              "relative h-full w-80 max-w-[88vw] overflow-hidden border-r border-border bg-app shadow-2xl transition-all duration-200 ease-out motion-reduce:transition-none",
+              mobileOpen ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
+            )}
             onClick={(event) => event.stopPropagation()}
           >
             <Sidebar mobile onNavigate={closeMobileMenu} onAction={closeMobileMenu} />
@@ -44,7 +100,7 @@ export function AppShell() {
       ) : null}
 
       <div className="min-w-0">
-        <Header onOpenMobileMenu={() => setMobileOpen(true)} />
+        <Header onOpenMobileMenu={openMobileMenu} />
         <main className="mx-auto flex max-w-[1600px] min-w-0 flex-col gap-6 px-4 py-6 lg:px-8">
           <Outlet />
         </main>
