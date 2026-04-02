@@ -1,0 +1,801 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum AuthProvider {
+  LOCAL
+  MICROSOFT
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  DISABLED
+  ARCHIVED
+}
+
+enum RoleKey {
+  POTENTIAL_USER
+  USER
+  APPROVER
+  ADMIN
+}
+
+enum PermissionModule {
+  DASHBOARD
+  RESERVATIONS
+  REQUESTS
+  CONFLICTS
+  USER_INFOS
+  VEHICLE_INFOS
+  COMMENTS
+  ODOMETER
+  VEHICLES
+  USERS
+  LOCATIONS
+  PERMISSIONS
+  NOTIFICATIONS
+  PERSONAL_PROFILE
+  FILES
+}
+
+enum PermissionAction {
+  ACCESS
+  VIEW
+  CREATE
+  UPDATE
+  DELETE
+  VALIDATE
+  REJECT
+  PRINT
+  SCAN
+  MANAGE
+}
+
+enum LocationType {
+  NATION
+  REGION
+  AGGLOMERATION
+  CITY
+  SITE
+}
+
+enum VehicleStatus {
+  AVAILABLE
+  RESERVED
+  MAINTENANCE
+  OUT_OF_SERVICE
+  RETIRED
+}
+
+enum ReservationStatus {
+  DRAFT
+  PENDING
+  CONFIRMED
+  CANCELLED
+  CONFLICTED
+  COMPLETED
+}
+
+enum WorkflowStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+  CONVERTED
+  ACTIVE
+  ARCHIVED
+}
+
+enum ConflictStatus {
+  OPEN
+  RESOLVED
+  CANCELLED
+  REJECTED
+}
+
+enum InfoEntityType {
+  USER
+  VEHICLE
+}
+
+enum InfoVisibility {
+  PUBLIC
+  PRIVATE
+}
+
+enum InfoValueType {
+  TEXT
+  IMAGE
+  DOCUMENT
+  DATE
+  BOOLEAN
+  NUMBER
+}
+
+enum CommentVisibility {
+  PUBLIC
+  PRIVATE
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+}
+
+enum ReminderStatus {
+  PENDING
+  SENT
+  CANCELLED
+  FAILED
+}
+
+enum RequestChangeType {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+enum OdometerEntryType {
+  START
+  END
+  MANUAL
+}
+
+model User {
+  id                 String                 @id @default(cuid())
+  email              String                 @unique
+  professionalEmail  String?                @unique
+  passwordHash       String
+  authProvider       AuthProvider           @default(LOCAL)
+  externalIdentityId String?                @unique
+  firstName          String
+  lastName           String
+  jobTitle           String?
+  phone              String?
+  regionLabel        String?
+  cityLabel          String?
+  avatarPath         String?
+  attachmentKey      String?
+  status             UserStatus             @default(PENDING)
+  isActive           Boolean                @default(true)
+  consentedAt        DateTime?
+  lastLoginAt        DateTime?
+  managerId          String?
+  manager            User?                  @relation("UserManager", fields: [managerId], references: [id], onDelete: SetNull)
+  reports            User[]                 @relation("UserManager")
+  managerLinks       ManagerRelationship[]  @relation("ManagerManaged")
+  reportLinks        ManagerRelationship[]  @relation("ManagerReported")
+  locations          UserLocation[]
+  infos              UserInfo[]
+  infoRequests       UserInfoRequest[]
+  roleAssignments    UserRoleAssignment[]
+  directPermissions  UserPermission[]
+  sessions           UserSession[]
+  passwordResets     PasswordResetToken[]
+  reservations       Reservation[]
+  reservationRequestsAsRequester ReservationRequest[] @relation("ReservationRequestRequester")
+  reservationRequestsAsSubject   ReservationRequest[] @relation("ReservationRequestSubject")
+  vehicleComments    VehicleComment[]
+  odometerLogs       VehicleOdometerLog[]
+  tripLogs           TripLog[]
+  notifications      Notification[]
+  uploadedFiles      Attachment[]           @relation("AttachmentUploadedBy")
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  deletedAt          DateTime?
+
+  @@index([managerId])
+  @@index([status, isActive])
+  @@index([attachmentKey])
+}
+
+model Role {
+  id          String               @id @default(cuid())
+  key         RoleKey              @unique
+  name        String               @unique
+  description String?
+  isSystem    Boolean              @default(false)
+  permissions RolePermission[]
+  assignments UserRoleAssignment[]
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+}
+
+model Permission {
+  id              String           @id @default(cuid())
+  module          PermissionModule
+  action          PermissionAction
+  label           String
+  description     String?
+  rolePermissions RolePermission[]
+  userPermissions UserPermission[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@unique([module, action])
+}
+
+model RolePermission {
+  id           String     @id @default(cuid())
+  roleId       String
+  permissionId String
+  scope        String     @default("ALL")
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@unique([roleId, permissionId])
+  @@index([permissionId])
+}
+
+model UserPermission {
+  id           String     @id @default(cuid())
+  userId       String
+  permissionId String
+  scope        String     @default("ALL")
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@unique([userId, permissionId])
+  @@index([permissionId])
+}
+
+model UserRoleAssignment {
+  id         String    @id @default(cuid())
+  userId     String
+  roleId     String
+  locationId String?
+  isActive   Boolean   @default(true)
+  assignedAt DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  location   Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, roleId, locationId])
+  @@index([roleId])
+}
+
+model ManagerRelationship {
+  id         String    @id @default(cuid())
+  managerId  String
+  reportId   String
+  isPrimary  Boolean   @default(true)
+  startsAt   DateTime  @default(now())
+  endsAt     DateTime?
+  manager    User      @relation("ManagerManaged", fields: [managerId], references: [id], onDelete: Cascade)
+  report     User      @relation("ManagerReported", fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@unique([managerId, reportId, startsAt])
+  @@index([reportId, endsAt])
+}
+
+model UserSession {
+  id             String   @id @default(cuid())
+  userId         String
+  tokenHash      String   @unique
+  expiresAt      DateTime
+  lastActivityAt DateTime @default(now())
+  ipAddress      String?
+  userAgent      String?
+  revokedAt      DateTime?
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt, expiresAt])
+}
+
+model PasswordResetToken {
+  id         String   @id @default(cuid())
+  userId     String
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, consumedAt, expiresAt])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorUserId String?
+  targetUserId String?
+  module     String
+  action     String
+  entityType String
+  entityId   String?
+  details    Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  @@index([actorUserId, createdAt])
+  @@index([targetUserId, createdAt])
+  @@index([module, action, createdAt])
+}
+
+model Location {
+  id                   String               @id @default(cuid())
+  code                 String               @unique
+  name                 String
+  type                 LocationType
+  attachmentKey        String?
+  parentId             String?
+  parent               Location?            @relation("LocationTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children             Location[]           @relation("LocationTree")
+  ancestors            LocationHierarchy[]  @relation("LocationHierarchyDescendant")
+  descendants          LocationHierarchy[]  @relation("LocationHierarchyAncestor")
+  userLinks            UserLocation[]
+  roleAssignments      UserRoleAssignment[]
+  vehicleLinks         VehicleLocation[]
+  currentVehicles      Vehicle[]            @relation("VehicleCurrentLocation")
+  departureReservations Reservation[]       @relation("ReservationDepartureLocation")
+  arrivalReservations  Reservation[]        @relation("ReservationArrivalLocation")
+  odometerLogs         VehicleOdometerLog[]
+  tripStarts           TripLog[]            @relation("TripDepartureLocation")
+  tripEnds             TripLog[]            @relation("TripArrivalLocation")
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  deletedAt            DateTime?
+
+  @@index([parentId, type])
+  @@index([attachmentKey])
+}
+
+model LocationHierarchy {
+  id           String   @id @default(cuid())
+  ancestorId   String
+  descendantId String
+  depth        Int
+  ancestor     Location @relation("LocationHierarchyAncestor", fields: [ancestorId], references: [id], onDelete: Cascade)
+  descendant   Location @relation("LocationHierarchyDescendant", fields: [descendantId], references: [id], onDelete: Cascade)
+
+  @@unique([ancestorId, descendantId])
+  @@index([descendantId, depth])
+}
+
+model UserLocation {
+  id         String    @id @default(cuid())
+  userId     String
+  locationId String
+  isPrimary  Boolean   @default(false)
+  startsAt   DateTime  @default(now())
+  endsAt     DateTime?
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  location   Location  @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, locationId, startsAt])
+  @@index([locationId, endsAt])
+}
+
+model Vehicle {
+  id                String                 @id @default(cuid())
+  registrationNumber String                @unique
+  internalName      String?
+  status            VehicleStatus          @default(AVAILABLE)
+  availabilityLabel String                 @default("Disponible")
+  currentLocationId String?
+  attachmentKey     String?
+  type              String
+  primaryImagePath  String?
+  notes             String?
+  inServiceAt       DateTime?
+  isActive          Boolean                @default(true)
+  qrSlug            String                 @unique @default(cuid())
+  currentLocation   Location?              @relation("VehicleCurrentLocation", fields: [currentLocationId], references: [id], onDelete: SetNull)
+  locations         VehicleLocation[]
+  images            VehicleImage[]
+  qrCodes           VehicleQrCode[]
+  statusHistory     VehicleStatusHistory[]
+  reservations      Reservation[]
+  reservationRequests ReservationRequest[]
+  conflicts         ReservationConflict[]
+  infos             VehicleInfo[]
+  infoRequests      VehicleInfoRequest[]
+  comments          VehicleComment[]
+  commentRequests   VehicleCommentRequest[]
+  odometerLogs      VehicleOdometerLog[]
+  tripLogs          TripLog[]
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  deletedAt         DateTime?
+
+  @@index([currentLocationId])
+  @@index([attachmentKey, status])
+}
+
+model VehicleLocation {
+  id         String    @id @default(cuid())
+  vehicleId  String
+  locationId String
+  isPrimary  Boolean   @default(false)
+  assignedAt DateTime  @default(now())
+  releasedAt DateTime?
+  vehicle    Vehicle   @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  location   Location  @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([vehicleId, locationId, assignedAt])
+  @@index([locationId, releasedAt])
+}
+
+model VehicleImage {
+  id        String   @id @default(cuid())
+  vehicleId String
+  path      String
+  caption   String?
+  isPrimary Boolean  @default(false)
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([vehicleId, isPrimary])
+}
+
+model VehicleQrCode {
+  id         String   @id @default(cuid())
+  vehicleId  String
+  format     String
+  assetPath  String
+  deepLink   String
+  generatedAt DateTime @default(now())
+  vehicle    Vehicle   @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@index([vehicleId, generatedAt])
+}
+
+model VehicleStatusHistory {
+  id          String        @id @default(cuid())
+  vehicleId   String
+  changedById String?
+  status      VehicleStatus
+  note        String?
+  vehicle     Vehicle       @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  createdAt   DateTime      @default(now())
+
+  @@index([vehicleId, createdAt])
+}
+
+model Activity {
+  id           String              @id @default(cuid())
+  code         String              @unique
+  label        String
+  isActive     Boolean             @default(true)
+  reservations Reservation[]
+  requests     ReservationRequest[]
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+}
+
+model AnalyticsCode {
+  id           String              @id @default(cuid())
+  code         String              @unique
+  label        String
+  isActive     Boolean             @default(true)
+  reservations Reservation[]
+  requests     ReservationRequest[]
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+}
+
+model Reservation {
+  id                  String             @id @default(cuid())
+  userId              String
+  vehicleId           String
+  activityId          String?
+  analyticsCodeId     String?
+  departureAt         DateTime
+  arrivalAt           DateTime
+  departureLocationId String?
+  arrivalLocationId   String?
+  destination         String
+  status              ReservationStatus  @default(PENDING)
+  sourceRequestId     String?            @unique
+  createdById         String
+  updatedById         String?
+  notes               String?
+  cancelledReason     String?
+  user                User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicle             Vehicle            @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  activity            Activity?          @relation(fields: [activityId], references: [id], onDelete: SetNull)
+  analyticsCode       AnalyticsCode?     @relation(fields: [analyticsCodeId], references: [id], onDelete: SetNull)
+  departureLocation   Location?          @relation("ReservationDepartureLocation", fields: [departureLocationId], references: [id], onDelete: SetNull)
+  arrivalLocation     Location?          @relation("ReservationArrivalLocation", fields: [arrivalLocationId], references: [id], onDelete: SetNull)
+  sourceRequest       ReservationRequest? @relation("ReservationFromRequest", fields: [sourceRequestId], references: [id], onDelete: SetNull)
+  history             ReservationHistory[]
+  primaryConflicts    ReservationConflict[] @relation("ConflictPrimaryReservation")
+  secondaryConflicts  ReservationConflict[] @relation("ConflictSecondaryReservation")
+  odometerLogs        VehicleOdometerLog[]
+  tripLog             TripLog?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  deletedAt           DateTime?
+
+  @@index([userId, departureAt])
+  @@index([vehicleId, departureAt, arrivalAt])
+  @@index([status, departureAt])
+}
+
+model ReservationRequest {
+  id              String           @id @default(cuid())
+  requesterUserId String
+  requestedForId  String
+  vehicleId       String?
+  activityId      String?
+  analyticsCodeId String?
+  departureAt     DateTime
+  arrivalAt       DateTime
+  destination     String
+  status          WorkflowStatus   @default(PENDING)
+  notes           String?
+  approverId      String?
+  rejectionReason String?
+  requesterUser   User             @relation("ReservationRequestRequester", fields: [requesterUserId], references: [id], onDelete: Cascade)
+  requestedFor    User             @relation("ReservationRequestSubject", fields: [requestedForId], references: [id], onDelete: Cascade)
+  vehicle         Vehicle?         @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  activity        Activity?        @relation(fields: [activityId], references: [id], onDelete: SetNull)
+  analyticsCode   AnalyticsCode?   @relation(fields: [analyticsCodeId], references: [id], onDelete: SetNull)
+  convertedReservation Reservation? @relation("ReservationFromRequest")
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([requestedForId, status])
+  @@index([vehicleId, departureAt, arrivalAt])
+}
+
+model ReservationConflict {
+  id                       String         @id @default(cuid())
+  reservationId            String
+  conflictingReservationId String
+  vehicleId                String
+  status                   ConflictStatus @default(OPEN)
+  reason                   String
+  notes                    String?
+  resolvedById             String?
+  resolvedAt               DateTime?
+  reservation              Reservation    @relation("ConflictPrimaryReservation", fields: [reservationId], references: [id], onDelete: Cascade)
+  conflictingReservation   Reservation    @relation("ConflictSecondaryReservation", fields: [conflictingReservationId], references: [id], onDelete: Cascade)
+  vehicle                  Vehicle        @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  createdAt                DateTime       @default(now())
+  updatedAt                DateTime       @updatedAt
+
+  @@unique([reservationId, conflictingReservationId])
+  @@index([vehicleId, status])
+}
+
+model ReservationHistory {
+  id            String   @id @default(cuid())
+  reservationId String
+  action        String
+  actorUserId   String?
+  snapshot      Json?
+  createdAt     DateTime @default(now())
+  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+
+  @@index([reservationId, createdAt])
+}
+
+model InfoType {
+  id                String             @id @default(cuid())
+  entityType        InfoEntityType
+  key               String
+  label             String
+  valueType         InfoValueType
+  defaultVisibility InfoVisibility
+  requiresApproval  Boolean            @default(true)
+  userInfos         UserInfo[]
+  userInfoRequests  UserInfoRequest[]
+  vehicleInfos      VehicleInfo[]
+  vehicleInfoRequests VehicleInfoRequest[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@unique([entityType, key])
+}
+
+model UserInfo {
+  id          String         @id @default(cuid())
+  userId      String
+  infoTypeId  String
+  label       String
+  valueText   String?
+  visibility  InfoVisibility @default(PRIVATE)
+  status      WorkflowStatus @default(ACTIVE)
+  validFrom   DateTime?
+  validTo     DateTime?
+  createdById String?
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  infoType    InfoType       @relation(fields: [infoTypeId], references: [id], onDelete: Cascade)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  deletedAt   DateTime?
+
+  @@index([userId, visibility])
+  @@index([infoTypeId, status])
+}
+
+model UserInfoRequest {
+  id            String            @id @default(cuid())
+  userId        String
+  infoTypeId    String
+  changeType    RequestChangeType
+  status        WorkflowStatus    @default(PENDING)
+  payload       Json
+  requestedById String
+  reviewedById  String?
+  reviewComment String?
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  infoType      InfoType          @relation(fields: [infoTypeId], references: [id], onDelete: Cascade)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@index([userId, status])
+}
+
+model VehicleInfo {
+  id          String         @id @default(cuid())
+  vehicleId   String
+  infoTypeId  String
+  label       String
+  valueText   String?
+  visibility  InfoVisibility @default(PRIVATE)
+  status      WorkflowStatus @default(ACTIVE)
+  validFrom   DateTime?
+  validTo     DateTime?
+  createdById String?
+  vehicle     Vehicle        @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  infoType    InfoType       @relation(fields: [infoTypeId], references: [id], onDelete: Cascade)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  deletedAt   DateTime?
+
+  @@index([vehicleId, visibility])
+  @@index([infoTypeId, status])
+}
+
+model VehicleInfoRequest {
+  id            String            @id @default(cuid())
+  vehicleId     String
+  infoTypeId    String
+  changeType    RequestChangeType
+  status        WorkflowStatus    @default(PENDING)
+  payload       Json
+  requestedById String
+  reviewedById  String?
+  reviewComment String?
+  vehicle       Vehicle           @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  infoType      InfoType          @relation(fields: [infoTypeId], references: [id], onDelete: Cascade)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@index([vehicleId, status])
+}
+
+model VehicleComment {
+  id          String            @id @default(cuid())
+  vehicleId   String
+  authorId    String
+  body        String
+  visibility  CommentVisibility @default(PRIVATE)
+  status      WorkflowStatus    @default(ACTIVE)
+  vehicle     Vehicle           @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  author      User              @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  deletedAt   DateTime?
+
+  @@index([vehicleId, visibility])
+  @@index([authorId, status])
+}
+
+model VehicleCommentRequest {
+  id            String            @id @default(cuid())
+  vehicleId     String
+  requestedById String
+  reviewedById  String?
+  body          String
+  visibility    CommentVisibility @default(PRIVATE)
+  status        WorkflowStatus    @default(PENDING)
+  reviewComment String?
+  vehicle       Vehicle           @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@index([vehicleId, status])
+}
+
+model VehicleOdometerLog {
+  id            String            @id @default(cuid())
+  vehicleId      String
+  userId         String
+  reservationId  String?
+  type           OdometerEntryType
+  valueKm        Int
+  locationId     String?
+  note           String?
+  occurredAt     DateTime
+  vehicle        Vehicle          @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reservation    Reservation?     @relation(fields: [reservationId], references: [id], onDelete: SetNull)
+  location       Location?        @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  createdAt      DateTime         @default(now())
+
+  @@index([vehicleId, occurredAt])
+  @@index([userId, occurredAt])
+}
+
+model TripLog {
+  id                  String      @id @default(cuid())
+  reservationId       String      @unique
+  vehicleId           String
+  userId              String
+  departureKm         Int
+  arrivalKm           Int?
+  departureLocationId String?
+  arrivalLocationId   String?
+  startedAt           DateTime
+  endedAt             DateTime?
+  comment             String?
+  reservation         Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  vehicle             Vehicle     @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  user                User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  departureLocation   Location?   @relation("TripDepartureLocation", fields: [departureLocationId], references: [id], onDelete: SetNull)
+  arrivalLocation     Location?   @relation("TripArrivalLocation", fields: [arrivalLocationId], references: [id], onDelete: SetNull)
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+
+  @@index([vehicleId, startedAt])
+}
+
+model Attachment {
+  id             String   @id @default(cuid())
+  entityType     String
+  entityId       String
+  storageKey     String   @unique
+  originalName   String
+  mimeType       String
+  sizeBytes      Int
+  checksum       String?
+  isPrivate      Boolean  @default(true)
+  uploadedById   String?
+  uploadedBy     User?    @relation("AttachmentUploadedBy", fields: [uploadedById], references: [id], onDelete: SetNull)
+  createdAt      DateTime @default(now())
+  deletedAt      DateTime?
+
+  @@index([entityType, entityId])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  body      String
+  link      String?
+  readAt    DateTime?
+  payload   Json?
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime         @default(now())
+
+  @@index([userId, readAt, createdAt])
+}
+
+model ReminderJob {
+  id               String         @id @default(cuid())
+  type             String
+  targetEntityType String
+  targetEntityId   String
+  scheduledAt      DateTime
+  processedAt      DateTime?
+  status           ReminderStatus @default(PENDING)
+  payload          Json?
+  createdAt        DateTime       @default(now())
+
+  @@index([status, scheduledAt])
+}

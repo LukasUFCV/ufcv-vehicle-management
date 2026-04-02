@@ -1,0 +1,66 @@
+services:
+  db:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: rsvehicule
+      MARIADB_USER: rsvehicule
+      MARIADB_PASSWORD: rsvehicule
+      MARIADB_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      NODE_ENV: development
+      PORT: 4000
+      APP_BASE_URL: http://localhost:5173
+      API_PUBLIC_URL: http://localhost:4000
+      DATABASE_URL: mysql://rsvehicule:rsvehicule@db:3306/rsvehicule
+      SESSION_COOKIE_NAME: rsvehicule_session
+      SESSION_TTL_HOURS: 12
+      SESSION_SECRET: replace_with_a_long_random_secret
+      CORS_ORIGIN: http://localhost:5173
+      UPLOAD_DIR: ./storage/uploads
+      QR_CODE_DIR: ./storage/qrcodes
+      PASSWORD_RESET_TOKEN_TTL_MINUTES: 30
+      SMTP_ENABLED: "false"
+      SMTP_HOST: mailhog
+      SMTP_PORT: 1025
+      SMTP_USER: ""
+      SMTP_PASS: ""
+      SMTP_FROM: no-reply@ufcv.local
+      SEED_ADMIN_EMAIL: admin@ufcv.local
+      SEED_ADMIN_PASSWORD: Admin123!
+      SEED_DEMO_PASSWORD: Demo123!
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+    command: sh -c "npm run prisma:generate -w backend && npm run prisma:migrate -w backend && npm run prisma:seed -w backend && npm run dev -w backend"
+    volumes:
+      - ./:/workspace
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    environment:
+      VITE_APP_NAME: RSVehicule
+      VITE_API_BASE_URL: http://localhost:4000/api
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    command: sh -c "npm run dev -w frontend -- --host 0.0.0.0"
+    volumes:
+      - ./:/workspace
+
+volumes:
+  mariadb_data:
+

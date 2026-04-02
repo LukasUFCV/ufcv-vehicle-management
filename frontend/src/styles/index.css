@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --bg: 246 249 252;
+  --bg-muted: 235 241 246;
+  --surface: 255 255 255;
+  --surface-strong: 248 251 253;
+  --border: 210 221 230;
+  --text: 16 25 40;
+  --text-soft: 83 99 116;
+  --brand: 0 141 209;
+}
+
+.dark {
+  color-scheme: dark;
+  --bg: 12 18 24;
+  --bg-muted: 18 27 35;
+  --surface: 24 34 45;
+  --surface-strong: 31 44 57;
+  --border: 61 78 95;
+  --text: 236 242 247;
+  --text-soft: 168 181 193;
+  --brand: 32 167 231;
+}
+
+@layer base {
+  html {
+    @apply min-h-full;
+  }
+
+  body {
+    @apply min-h-screen font-sans;
+    background:
+      radial-gradient(circle at top left, rgba(0, 141, 209, 0.12), transparent 26rem),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0)),
+      rgb(var(--bg));
+    color: rgb(var(--text));
+  }
+
+  .dark body {
+    background:
+      radial-gradient(circle at top left, rgba(0, 141, 209, 0.18), transparent 24rem),
+      linear-gradient(180deg, rgba(10, 18, 23, 0.4), rgba(10, 18, 23, 0)),
+      rgb(var(--bg));
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  a {
+    @apply text-brand-600 dark:text-brand-400;
+  }
+
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  a:focus-visible {
+    @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-transparent;
+  }
+}
+
+@layer utilities {
+  .bg-app {
+    background-color: rgb(var(--bg));
+  }
+
+  .bg-surface {
+    background-color: rgb(var(--surface));
+  }
+
+  .bg-surface-strong {
+    background-color: rgb(var(--surface-strong));
+  }
+
+  .bg-muted {
+    background-color: rgb(var(--bg-muted));
+  }
+
+  .text-app {
+    color: rgb(var(--text));
+  }
+
+  .text-soft {
+    color: rgb(var(--text-soft));
+  }
+
+  .border-border {
+    border-color: rgb(var(--border));
+  }
+}
