@@ -29,22 +29,45 @@
 @layer base {
   html {
     @apply min-h-full;
+    background-color: rgb(var(--bg));
   }
 
   body {
     @apply min-h-screen font-sans;
+    position: relative;
+    color: rgb(var(--text));
+  }
+
+  #root {
+    min-height: 100vh;
+    position: relative;
+    isolation: isolate;
+  }
+
+  #root::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
     background:
       radial-gradient(circle at top left, rgba(0, 141, 209, 0.12), transparent 26rem),
       linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0)),
       rgb(var(--bg));
-    color: rgb(var(--text));
   }
 
-  .dark body {
+  .dark #root::before {
     background:
       radial-gradient(circle at top left, rgba(0, 141, 209, 0.18), transparent 24rem),
       linear-gradient(180deg, rgba(10, 18, 23, 0.4), rgba(10, 18, 23, 0)),
       rgb(var(--bg));
+  }
+
+  @supports (min-height: 100dvh) {
+    body,
+    #root {
+      min-height: 100dvh;
+    }
   }
 
   * {

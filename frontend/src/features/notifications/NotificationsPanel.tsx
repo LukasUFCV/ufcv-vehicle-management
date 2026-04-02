@@ -51,7 +51,7 @@ export function NotificationsPanel() {
       </button>
 
       {open ? (
-        <Card className="absolute right-0 z-30 mt-2 w-[22rem] space-y-3">
+        <Card className="absolute right-0 z-30 mt-2 max-h-[75vh] w-[calc(100vw-2rem)] max-w-[22rem] space-y-3 overflow-y-auto">
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold">Notifications</p>
             <Button variant="ghost" onClick={() => setOpen(false)}>
@@ -63,9 +63,9 @@ export function NotificationsPanel() {
               data.data.map((notification) => (
                 <div key={notification.id} className="rounded-xl border border-border p-3">
                   <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-semibold text-app">{notification.title}</p>
-                      <p className="mt-1 text-sm text-soft">{notification.body}</p>
+                    <div className="min-w-0">
+                      <p className="break-words text-sm font-semibold text-app">{notification.title}</p>
+                      <p className="mt-1 break-words text-sm text-soft">{notification.body}</p>
                       <p className="mt-2 text-xs text-soft">{formatDateTime(notification.createdAt)}</p>
                     </div>
                     {!notification.readAt ? (

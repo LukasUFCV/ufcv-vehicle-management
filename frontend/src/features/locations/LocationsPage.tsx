@@ -51,6 +51,28 @@ export function LocationsPage() {
         <h2 className="text-lg font-semibold">Localisations hiérarchiques</h2>
         <div className="mt-4">
           <DataTable
+            getRowKey={(location) => location.id}
+            mobileCard={(location) => (
+              <Card className="space-y-4 p-4">
+                <div className="min-w-0">
+                  <p className="break-words font-semibold text-app">{location.name}</p>
+                  <p className="break-words text-sm text-soft">Code : {location.code}</p>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-soft">Type</p>
+                    <p className="mt-1 text-sm text-app">{location.type}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-soft">Parent</p>
+                    <p className="mt-1 break-words text-sm text-app">
+                      {location.parent?.name ?? "Racine"}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            )}
             columns={[
               { key: "code", header: "Code", cell: (location: LocationRecord) => location.code },
               { key: "name", header: "Nom", cell: (location: LocationRecord) => location.name },

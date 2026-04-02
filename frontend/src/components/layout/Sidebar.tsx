@@ -12,7 +12,10 @@ import {
   Users
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../../features/auth/useAuth";
 import { cn } from "../../lib/cn";
+import { Button } from "../ui/Button";
+import { ThemeToggle } from "../ui/ThemeToggle";
 import { UfcvLogo } from "../ui/UfcvLogo";
 
 const navigation = [
@@ -31,9 +34,22 @@ const navigation = [
   { to: "/informations-personnelles", label: "Mes informations", icon: UserCircle2 }
 ];
 
-export function Sidebar({ mobile = false }: { mobile?: boolean }) {
+type SidebarProps = {
+  mobile?: boolean;
+  onNavigate?: () => void;
+  onAction?: () => void;
+};
+
+export function Sidebar({ mobile = false, onNavigate, onAction }: SidebarProps) {
+  const { user, logout } = useAuth();
+
   return (
-    <aside className={cn("flex h-full flex-col gap-6", mobile ? "p-4" : "p-6")}>
+    <aside
+      className={cn(
+        "flex h-full min-h-0 flex-col gap-6",
+        mobile ? "overflow-y-auto p-4" : "p-6"
+      )}
+    >
       <div className="rounded-2xl border border-border bg-surface p-4 shadow-soft">
         <div className="flex items-center gap-3">
           <UfcvLogo className="h-12 w-12" imageClassName="scale-[0.96]" />
@@ -52,6 +68,7 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
             <NavLink
               key={item.to}
               to={item.to}
+              onClick={mobile ? onNavigate : undefined}
               className={({ isActive }) =>
                 cn(
                   "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
@@ -62,11 +79,43 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
               }
             >
               <Icon className="h-4 w-4" />
-              {item.label}
+              <span className="min-w-0 break-words">{item.label}</span>
             </NavLink>
           );
         })}
       </nav>
+
+      {mobile ? (
+        <div className="mt-auto space-y-4 border-t border-border pt-4">
+          <div className="rounded-2xl border border-border bg-surface p-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-soft">Session</p>
+            <p className="mt-2 break-words text-sm font-medium text-app">{user?.fullName}</p>
+            <p className="text-xs text-soft">{user?.roles[0]?.name ?? "Utilisateur"}</p>
+          </div>
+
+          <div className="space-y-2 rounded-2xl border border-border bg-surface p-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-soft">Apparence</p>
+            <ThemeToggle
+              className="w-full"
+              buttonClassName="flex-1 justify-center"
+              showLabels
+              stretch
+              onSelect={onAction}
+            />
+          </div>
+
+          <Button
+            variant="secondary"
+            className="w-full"
+            onClick={() => {
+              onAction?.();
+              void logout();
+            }}
+          >
+            Déconnexion
+          </Button>
+        </div>
+      ) : null}
     </aside>
   );
 }

@@ -55,12 +55,12 @@ export function DashboardPage() {
 
       <section className="grid gap-6 xl:grid-cols-[1.2fr,0.8fr]">
         <Card>
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold">Mes prochaines réservations</h2>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <h2 className="break-words text-lg font-semibold">Mes prochaines réservations</h2>
               <p className="text-sm text-soft">Vue rapide des trajets à venir.</p>
             </div>
-            <Link to="/reservations" className="text-sm font-medium">
+            <Link to="/reservations" className="shrink-0 text-sm font-medium">
               Voir tout
             </Link>
           </div>
@@ -69,21 +69,21 @@ export function DashboardPage() {
             {data?.myNextReservations.length ? (
               data.myNextReservations.map((reservation) => (
                 <div key={reservation.id} className="rounded-xl border border-border bg-surface-strong p-4">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div>
-                      <p className="font-medium text-app">{reservation.destination}</p>
-                      <p className="text-sm text-soft">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <p className="break-words font-medium text-app">{reservation.destination}</p>
+                      <p className="break-words text-sm text-soft">
                         {reservation.vehicle.registrationNumber}
                         {reservation.vehicle.internalName ? ` · ${reservation.vehicle.internalName}` : ""}
                       </p>
                     </div>
-                    <div className="text-right text-sm text-soft">
+                    <div className="shrink-0 text-left text-sm text-soft sm:text-right">
                       <p>{formatDateTime(reservation.departureAt)}</p>
                       <p>{formatDateTime(reservation.arrivalAt)}</p>
                     </div>
                   </div>
-                  {reservation.activity ? (
-                    <p className="mt-2 text-sm text-soft">Activité : {reservation.activity.label}</p>
+                  {reservation.activity?.label ? (
+                    <p className="mt-2 break-words text-sm text-soft">Activité : {reservation.activity.label}</p>
                   ) : null}
                 </div>
               ))

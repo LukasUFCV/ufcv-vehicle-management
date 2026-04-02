@@ -58,12 +58,42 @@ export function UsersPage() {
     }
   });
 
+  const getStatusTone = (status: UserRecord["status"]) =>
+    status === "ACTIVE" ? "success" : status === "PENDING" ? "warning" : "neutral";
+
   return (
     <section className="grid gap-6 xl:grid-cols-[1.2fr,0.8fr]">
       <Card>
         <h2 className="text-lg font-semibold">Utilisateurs</h2>
         <div className="mt-4">
           <DataTable
+            getRowKey={(user) => user.id}
+            mobileCard={(user) => (
+              <Card className="space-y-4 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-app">
+                      {user.firstName} {user.lastName}
+                    </p>
+                    <p className="break-words text-sm text-soft">{user.email}</p>
+                  </div>
+                  <Badge tone={getStatusTone(user.status)}>{user.status}</Badge>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-soft">Poste</p>
+                    <p className="mt-1 break-words text-sm text-app">
+                      {user.jobTitle ?? "Non renseigné"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-soft">Rôles</p>
+                    <p className="mt-1 break-words text-sm text-app">{user.roles.join(", ")}</p>
+                  </div>
+                </div>
+              </Card>
+            )}
             columns={[
               {
                 key: "name",
@@ -87,9 +117,7 @@ export function UsersPage() {
                 header: "Statut",
                 cell: (user: UserRecord) => (
                   <div className="space-y-2">
-                    <Badge tone={user.status === "ACTIVE" ? "success" : user.status === "PENDING" ? "warning" : "neutral"}>
-                      {user.status}
-                    </Badge>
+                    <Badge tone={getStatusTone(user.status)}>{user.status}</Badge>
                     <p className="text-xs text-soft">{user.roles.join(", ")}</p>
                   </div>
                 )
